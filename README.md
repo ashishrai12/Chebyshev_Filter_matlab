@@ -1,4 +1,4 @@
-# chebyshev-engine
+# Chebyshev-Engine
 
 [![Crate](https://img.shields.io/badge/rust-2024-orange.svg)](https://www.rust-lang.org)
 [![No_Std](https://img.shields.io/badge/no__std-compatible-blue.svg)](#)
