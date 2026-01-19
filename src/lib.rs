@@ -9,7 +9,6 @@
 
 use num_traits::Float;
 
-use num_traits::Float;
 
 /// Trait for signal processing elements that can process samples one by one or in blocks.
 pub trait SignalProcessor<T> {
@@ -187,9 +186,8 @@ impl ChebyshevDesigner {
         let fs = f64::from(sample_rate);
         let fc = f64::from(cutoff_hz);
 
-        // Prewarp cutoff frequency
         // wp = 2 * fs * tan(pi * fc / fs)
-        let wp = 2.0 * fs * (f64::pi() * fc / fs).tan();
+        let wp = 2.0 * fs * (<f64 as Float>::pi() * fc / fs).tan();
 
         // Ripple factor epsilon
         let epsilon = (10.0f64.powf(rp / 10.0) - 1.0).sqrt();
@@ -208,7 +206,7 @@ impl ChebyshevDesigner {
             // but let's stick to standard texts: theta_k = pi/(2N) * (2k + 1 + N) 
             // Let's use the explicit k index from 1 to N/2
             let k = (i + 1) as f64;
-            let theta = (2.0 * k - 1.0) * f64::pi() / (2.0 * n);
+            let theta = (2.0 * k - 1.0) * <f64 as Float>::pi() / (2.0 * n);
             
             // s-plane pole
             let sigma = -sinh_mu * theta.sin();
