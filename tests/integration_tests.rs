@@ -9,7 +9,7 @@ fn test_biquad_dc_gain() {
     
     let coeffs = BiquadCoefficients {
         b0: 1.0, b1: 0.0, b2: 0.0,
-        a1: 0.0, a2: 0.0
+        a1: 0.0, a2: 0.00
     };
     let mut filter = Biquad::new(coeffs);
     
