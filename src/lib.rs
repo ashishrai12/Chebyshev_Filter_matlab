@@ -9,11 +9,7 @@
 
 use num_traits::Float;
 
-// Use libm for math functions in no_std
-#[cfg(not(feature = "std"))]
-use libm::{sin, cos, sinh, cosh, asinh, tan, M_PI};
-#[cfg(feature = "std")]
-use std::f64::consts::PI as M_PI;
+use num_traits::Float;
 
 /// Trait for signal processing elements that can process samples one by one or in blocks.
 pub trait SignalProcessor<T> {
@@ -193,7 +189,7 @@ impl ChebyshevDesigner {
 
         // Prewarp cutoff frequency
         // wp = 2 * fs * tan(pi * fc / fs)
-        let wp = 2.0 * fs * (M_PI * fc / fs).tan();
+        let wp = 2.0 * fs * (f64::pi() * fc / fs).tan();
 
         // Ripple factor epsilon
         let epsilon = (10.0f64.powf(rp / 10.0) - 1.0).sqrt();
@@ -212,7 +208,7 @@ impl ChebyshevDesigner {
             // but let's stick to standard texts: theta_k = pi/(2N) * (2k + 1 + N) 
             // Let's use the explicit k index from 1 to N/2
             let k = (i + 1) as f64;
-            let theta = (2.0 * k - 1.0) * M_PI / (2.0 * n);
+            let theta = (2.0 * k - 1.0) * f64::pi() / (2.0 * n);
             
             // s-plane pole
             let sigma = -sinh_mu * theta.sin();

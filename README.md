@@ -26,11 +26,11 @@ This architecture avoids the extreme coefficient sensitivity found in high-order
 
 ```mermaid
 graph LR
-    Input((x[n])) --> B1[Biquad Section 1]
-    B1 -- y1[n] --> B2[Biquad Section 2]
-    B2 -- y2[n] --> dots[...]
-    dots -- y_{k-1}[n] --> BN[Biquad Section k]
-    BN --> Output((y[n]))
+    Input((Input)) --> B1[Biquad Section 1]
+    B1 --> B2[Biquad Section 2]
+    B2 --> dots[...]
+    dots --> BN[Biquad Section k]
+    BN --> Output((Output))
     
     style B1 fill:#f9f,stroke:#333,stroke-width:2px
     style B2 fill:#f9f,stroke:#333,stroke-width:2px
