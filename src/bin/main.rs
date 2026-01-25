@@ -1,7 +1,6 @@
-use chebyshev_engine::{Biquad, BiquadCascade, BiquadCoefficients, SignalProcessor};
+use chebyshev_engine::{Biquad, BiquadCascade, SignalProcessor};
 use hound;
 use std::env;
-use std::path::Path;
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     let args: Vec<String> = env::args().collect();
@@ -19,7 +18,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     // Setup a 4th order Chebyshev Type I Low-pass filter (0.5 dB ripple)
     // Cutoff frequency at 0.1 * Fs (normalized)
-    let sample_rate = spec.sample_rate as f32;
+    let sample_rate = spec.sample_rate as f64;
     let cutoff = sample_rate * 0.1; 
     let order = 4;
     let ripple = 0.5;
@@ -49,15 +48,15 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     match spec.sample_format {
         hound::SampleFormat::Float => {
             for sample in reader.samples::<f32>() {
-                let s = sample?;
+                let s = sample? as f64;
                 let filtered = cascade.process(s);
-                writer.write_sample(filtered)?;
+                writer.write_sample(filtered as f32)?;
             }
         }
         hound::SampleFormat::Int => {
-            let max_val = (1 << (spec.bits_per_sample - 1)) as f32;
+            let max_val = (1 << (spec.bits_per_sample - 1)) as f64;
             for sample in reader.samples::<i32>() {
-                let s = sample? as f32 / max_val;
+                let s = sample? as f64 / max_val;
                 let filtered = cascade.process(s);
                 writer.write_sample((filtered * max_val) as i32)?;
             }
