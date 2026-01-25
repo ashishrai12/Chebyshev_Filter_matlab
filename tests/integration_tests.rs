@@ -76,9 +76,9 @@ fn test_chebyshev_design_runs() {
     // Just ensure it doesn't panic and returns plausible values (not NaN)
     let coeffs = ChebyshevDesigner::design_lowpass(
         4, 
-        0.5, // 0.5 dB ripple
-        1000.0, // cutoff
-        44100.0 // fs
+        0.5_f64, // 0.5 dB ripple
+        1000.0_f64, // cutoff
+        44100.0_f64 // fs
     );
     
     let section1 = coeffs[0];
