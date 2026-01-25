@@ -11,7 +11,7 @@ use num_traits::Float;
 
 
 /// Trait for signal processing elements that can process samples one by one or in blocks.
-pub trait SignalProcessor<T> {
+pub trait SignalProcessor<T: Copy> {
     /// Processes a single sample.
     fn process(&mut self, input: T) -> T;
 
@@ -48,7 +48,7 @@ pub struct Biquad<T> {
 
 impl<T: Float> Biquad<T> {
     /// Creates a new Biquad filter with the given coefficients.
-    pub const fn new(coeffs: BiquadCoefficients<T>) -> Self {
+    pub fn new(coeffs: BiquadCoefficients<T>) -> Self {
         Self {
             coeffs,
             w1: T::zero(),
@@ -170,6 +170,8 @@ pub struct ChebyshevDesigner;
 impl ChebyshevDesigner {
     /// Designs a low-pass Chebyshev Type I filter.
     /// Returns a fixed-size array of coefficients for simplicity in `no_std`.
+    /// Designs a low-pass Chebyshev Type I filter.
+    /// Returns a fixed-size array of coefficients for simplicity in `no_std`.
     pub fn design_lowpass<T: Float + From<f64>>(
         order: usize,
         ripple_db: T,
@@ -187,7 +189,7 @@ impl ChebyshevDesigner {
         let fc = f64::from(cutoff_hz);
 
         // wp = 2 * fs * tan(pi * fc / fs)
-        let wp = 2.0 * fs * (<f64 as Float>::pi() * fc / fs).tan();
+        let wp = 2.0 * fs * (core::f64::consts::PI * fc / fs).tan();
 
         // Ripple factor epsilon
         let epsilon = (10.0f64.powf(rp / 10.0) - 1.0).sqrt();
@@ -206,7 +208,7 @@ impl ChebyshevDesigner {
             // but let's stick to standard texts: theta_k = pi/(2N) * (2k + 1 + N) 
             // Let's use the explicit k index from 1 to N/2
             let k = (i + 1) as f64;
-            let theta = (2.0 * k - 1.0) * <f64 as Float>::pi() / (2.0 * n);
+            let theta = (2.0 * k - 1.0) * core::f64::consts::PI / (2.0 * n);
             
             // s-plane pole
             let sigma = -sinh_mu * theta.sin();
@@ -221,8 +223,8 @@ impl ChebyshevDesigner {
             // after bilinear transform...
             
             // Base quantities
-            let sigma_sq = sigma * sigma;
-            let omega_sq = omega * omega;
+            // let sigma_sq = sigma * sigma;
+            // let omega_sq = omega * omega;
             
             // Note: We need to scale by wp for frequency scaling before bilinear? 
             // Actually, with pre-warping, we substitute s -> s/wp.
@@ -252,7 +254,7 @@ impl ChebyshevDesigner {
             // Standard formula for LP numerator with bilinear: (wp^2) * (1 + 2z^-1 + z^-2)
             // But we must match the gain.
             
-            let k_num = wp * wp; // This is NOT correct for general formulation, needs full bilinear expansion.
+            // let k_num = wp * wp; // This is NOT correct for general formulation, needs full bilinear expansion.
             // Let's re-evaluate:
             // H(s) = (-p * p_conj) / ( (s-p)(s-p_conj) )  <-- Normalized to unity DC gain for just this section?
             // Actually, better to just implement the standard digital biquad params directly if possible.
@@ -280,11 +282,11 @@ impl ChebyshevDesigner {
 
             // Store
             sections[i] = BiquadCoefficients {
-                b0: T::from(b0),
-                b1: T::from(b1),
-                b2: T::from(b2),
-                a1: T::from(a1),
-                a2: T::from(a2),
+                b0: <T as From<f64>>::from(b0),
+                b1: <T as From<f64>>::from(b1),
+                b2: <T as From<f64>>::from(b2),
+                a1: <T as From<f64>>::from(a1),
+                a2: <T as From<f64>>::from(a2),
             };
         }
         
@@ -297,10 +299,10 @@ impl ChebyshevDesigner {
         // Our individual sections were normalized to 1.0 at DC.
         // We need to scale the first section.
         if order % 2 == 0 {
-             let scale = (10.0f64.powf(-rp / 20.0));
-             sections[0].b0 = sections[0].b0 * T::from(scale);
-             sections[0].b1 = sections[0].b1 * T::from(scale);
-             sections[0].b2 = sections[0].b2 * T::from(scale);
+             let scale = 10.0f64.powf(-rp / 20.0);
+             sections[0].b0 = sections[0].b0 * <T as From<f64>>::from(scale);
+             sections[0].b1 = sections[0].b1 * <T as From<f64>>::from(scale);
+             sections[0].b2 = sections[0].b2 * <T as From<f64>>::from(scale);
         }
 
         sections
